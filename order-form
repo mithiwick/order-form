@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Form</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 400px; margin: auto; text-align: center; }
+        label, input { display: block; width: 100%; margin-bottom: 10px; }
+        .total { font-weight: bold; margin-top: 10px; }
+        button { background-color: #28a745; color: white; padding: 10px; border: none; cursor: pointer; }
+        .company-info { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="company-info">
+        <h1>Delifoods</h1>
+        <p> Mobile: 306 202 4054 Email: delifoods@mail.com</p>
+    </div>
+    
+    <h2>Order Form</h2>
+    <form id="orderForm">
+        <div id="items"></div>
+        <p class="total">Total: $<span id="total">0.00</span></p>
+        <label for="name">Name:</label>
+        <input type="text" id="name" required>
+        <label for="mobile">Mobile:</label>
+        <input type="tel" id="mobile" required>
+        <button type="submit">Submit Order</button>
+    </form>
+
+    <script>
+        const items = [
+            { name: "Item 1", price: 10 },
+            { name: "Item 2", price: 15 },
+            { name: "Item 3", price: 20 },
+            { name: "Item 4", price: 25 },
+            { name: "Item 5", price: 30 },
+            { name: "Item 6", price: 35 },
+            { name: "Item 7", price: 40 },
+            { name: "Item 8", price: 50 }
+        ];
+
+        const itemsContainer = document.getElementById("items");
+        items.forEach((item, index) => {
+            const div = document.createElement("div");
+            div.innerHTML = `<label>${item.name} ($${item.price} each):
+                <input type="number" min="0" value="0" id="item${index}" data-price="${item.price}" class="quantity">
+            </label>`;
+            itemsContainer.appendChild(div);
+        });
+
+        document.getElementById("orderForm").addEventListener("input", () => {
+            let total = 0;
+            document.querySelectorAll(".quantity").forEach(input => {
+                total += input.value * input.dataset.price;
+            });
+            document.getElementById("total").innerText = total.toFixed(2);
+        });
+
+        document.getElementById("orderForm").addEventListener("submit", (e) => {
+            e.preventDefault();
+            downloadOrderData();
+            alert("Order submitted successfully!");
+        });
+
+        function downloadOrderData() {
+            let csvContent = "Name,Mobile,";
+            items.forEach((item, index) => {
+                csvContent += `${item.name},`;
+            });
+            csvContent += "Total\n";
+            
+            const name = document.getElementById("name").value;
+            const mobile = document.getElementById("mobile").value;
+            csvContent += `${name},${mobile},`;
+            
+            document.querySelectorAll(".quantity").forEach(input => {
+                csvContent += `${input.value},`;
+            });
+            
+            csvContent += document.getElementById("total").innerText + "\n";
+            
+            const blob = new Blob([csvContent], { type: "text/csv" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "order_data.csv";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>
